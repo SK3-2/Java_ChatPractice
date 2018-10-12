@@ -59,6 +59,11 @@ public class EventManager {
         ByteBuffer buffer = null;
         buffer = ByteBuffer.allocate(100);
         int bytecount = channel.read(buffer);
+
+        ClientSocketChannel chnn = (ClientSocketChannel) key.channel();
+        String msg = chnn.receive();
+
+
         buffer.flip();
         return charset.decode(buffer).toString();
     }
