@@ -72,32 +72,13 @@ public class EventManager {
 
         message = recvMsg(key);
 
-        try {
+        System.out.println("read Data:" + message);
 
-            System.out.println("read Data:" + message);
+        mptr.set_Msg(message);
+        cmptr.handler(mptr);
 
-            mptr.set_Msg(--);
-
-            if(mptr->isSetting()){
-                cmptr.settingMsg(mptr);
-            }
-            else if(mptr->isEmpty()){
-                cmptr.close_Session(mptr);
-            }
-            else if(mptr->isWhisper()){
-                cmptr.whispMsg(mptr);
-            }
-            else{
-                cmptr.broadMsg(mptr);
-            }
-
-            return; //읽고 종료
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
+        return; //읽고 종료
     }
-    @Override
     public void run() { //do_Poll 동치
         // TODO Auto-generated method stub
 

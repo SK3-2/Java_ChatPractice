@@ -26,7 +26,7 @@ public class main {
 
         System.out.println("티맥스 대화방 시작");
 
-        Em.run(); //do_Poll 동치
+        EM.run(); //do_Poll 동치
 
     }
 
