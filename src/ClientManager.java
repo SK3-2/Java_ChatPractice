@@ -35,19 +35,19 @@ public class ClientManager {
     }
 
     public void handler(Message msg){
-        SocketChannel fromSock = msg.getFromSock();
+
         String fromID = (String) socketIDHash.get(fromSock);
 
         if(msg.isWhisper()){
-            whisperMsg();
-        } else if (msg.isSetting){
-            settingMsg();
+            whisperMsg(msg);
+        } else if (msg.isSetting()){
+            settingMsg(msg);
         } else {
-            broadcastMsg();
+            broadcastMsg(msg);
         }
     }
 
-    private void broadcastMsg() {
+    private void broadcastMsg(Message msg) {
         Set socketSet = socketIDHash.entrySet();
         Iterator it = socketSet.iterator();
 
@@ -88,11 +88,12 @@ public class ClientManager {
         client_self.set(msg);
     }
 
-    public void closeSession(MsgCarrier msg){
+    public void closeSession(Message msg){
         SocketChannel fromSock = msg.getFromSock();
         String fromID = (String) socketIDHash.get(fromSock);
         idClientHash.remove(fromID);
         socketIDHash.remove(fromSock);
+
         // call close() of EventManager
     }
 

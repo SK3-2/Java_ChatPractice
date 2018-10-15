@@ -7,7 +7,7 @@ import java.util.Iterator;
 import java.util.Set;
 
 public class main {
-    private InetSocketAddress sockAddr;
+    private  static InetSocketAddress sockAddr;
 
     public static void main(String[] args) {
         int port_in = Integer.parseInt(args[1]);
@@ -30,7 +30,7 @@ public class main {
 
     }
 
-    ServerSocketChannel CreateServer(int port) {
+    public static ServerSocketChannel CreateServer(int port) {
         try {
             sockAddr = new InetSocketAddress("localhost", port);
             ServerSocketChannel socketChannel = ServerSocketChannel.open();
@@ -44,4 +44,3 @@ public class main {
 
 }
 
-}
