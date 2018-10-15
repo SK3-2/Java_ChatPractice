@@ -39,28 +39,28 @@ public class Message {
         }
 
         //Ask by isCase
-        boolean isSetID() final
+        boolean isSetID()
         {
                 if (mtype == MsgType.GREET)
                         return true;
                 return false;
         }
 
-        boolean isWhisper() const
+        boolean isWhisper()
         {
                 if (mtype == MsgType.WHISP)
                         return true;
                 return false;
         }
 
-        boolean isSetting() const
+        boolean isSetting()
         {
                 if (mtype == MsgType.SET)
                         return true;
                 return false;
         }
 
-        boolean isEmpty() const
+        boolean isEmpty()
         {
                 if (mtype == MsgType.BYE)
                         return true;
