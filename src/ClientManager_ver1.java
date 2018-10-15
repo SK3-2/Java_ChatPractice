@@ -1,3 +1,4 @@
+import java.io.IOException;
 import java.nio.channels.SocketChannel;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -9,23 +10,21 @@ public class ClientManager_ver1 {
     private HashMap idClientHash = new HashMap();
 
 
-    public void registerClient(String id, SocketChannel sockChannel){
-
+    public void registerClient(String id, ClientSocketChannel sockChannel) throws IOException {
         if(!isExist(id)){
             String msgAns = "no";
-            sockChannel.write(msgAns);
+            sockChannel.send(msgAns);
             sockChannel.close(); //close and detach from the selector
             System.out.println("Submitted ID is denied. - already existed");
         } else {
-            String  msgAns = "yes";
-            sockChannel.write(msgAns);
-
+            String msgAns = "yes";
+            sockChannel.send(msgAns);
             ClientSession clientSession = new ClientSession(id, sockChannel);
             socketIDHash.put(sockChannel, id);
             idClientHash.put(id, clientSession);
 
             //register CS to the EventManager
-            broadcastMsg("["+ id + "] enters to the Chat.");
+            broadcastMsg();
             }
         }
 
@@ -35,51 +34,66 @@ public class ClientManager_ver1 {
         return false;
     }
 
-    public void broadcastMsg(MsgCarrier msg) {
-        Set clientSet = clientIDHash.entrySet();
-        Iterator it = clientSet.iterator();
+    public void handle(MsgCarrier msg){
+        SocketChannel fromSock = msg.getFromSock();
+        String fromID = (String) socketIDHash.get(fromSock);
+
+        if(msg.isWhisper()){
+            whisperMsg();
+        } else if (msg.isSetting){
+            settingMsg();
+        } else {
+            broadcastMsg();
+        }
+    }
+
+    private void broadcastMsg() {
+        Set socketSet = socketIDHash.entrySet();
+        Iterator it = socketSet.iterator();
 
         while(it.hasNext()){
-            Map.Entry clientEntry = (Map.Entry)it.next();
-
-            ClientSession client = (ClientSession)clientEntry.getValue();
-            if(client.socket == msg.socket) {
-                //client.send()
+            Map.Entry socketEntry = (Map.Entry)it.next();
+            if(socketEntry.getKey()== fromSock){
+                continue;
             }
+            ClientSession client = (ClientSession) idClientHash.get((String)socketEntry.getValue());
+            client.send(msg.frame(fromID));
         }
     }
 
-    public void whisperMsg(MsgCarrier msg){
+    private void whisperMsg(){
         try {
             String destID = msg.getDestID();
-            SocketChannel fromSock = msg.getFromSock();
-            SocketChannel toSock = msg.getToSock();
-        } catch (){
-            System.out.println("Message type exception");
-        }
 
-        if(!clientIDHash.containsKey(destID)){
-            //send ( fromSock.  "Fail to find the user with that name"          )
-        } else{
-            ClientSession client = (ClientSession)clientIDHash.get(destID);
-            //client.sendMsg(msg.~~)
-            //send ( toSock.
-        }
-    }
+            if(!idClientHash.containsKey(destID)){
+                //Send back to the sender
+                ClientSession client_sent = (ClientSession)idClientHash.get(fromID);
+                client_sent.send("Fail to find the user with that name");
+                return;
+            } else{
+                //Find pointed client
+                ClientSession client = (ClientSession)idClientHash.get(destID);
+                client.send(msg.frame(fromID));
+            }
 
-    public void settingMsg(MsgCarrier msg){
-        try{
-            SocketChannel fromSock = msg.getFromSock();
-
-
-            Set.clientSet
+        } catch (IOException e){
+            e.printStackTrace();
+            System.out.println("message type exception");
+            return;
         }
     }
 
-    public void closeSession(ClientSession clientSession){
-        clientIDHash.remove(id);
-        clientSockHash.remove()
+    private void settingMsg(){
+        ClientSession client_self = (ClientSession)idClientHash.get(fromID);
+        client_self.set(msg);
+    }
 
+    public void closeSession(MsgCarrier msg){
+        SocketChannel fromSock = msg.getFromSock();
+        String fromID = (String) socketIDHash.get(fromSock);
+        idClientHash.remove(fromID);
+        socketIDHash.remove(fromSock);
+        // call close() of EventManager
     }
 
 }
