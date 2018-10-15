@@ -1,20 +1,17 @@
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
-import java.util.Iterator;
-import java.util.Set;
 
 public class main {
-    private  static InetSocketAddress sockAddr;
+    private static InetSocketAddress sockAddr;
 
     public static void main(String[] args) {
-        int port_in = Integer.parseInt(args[1]);
+
         if (args.length == 0) {
             System.err.println("접속하실 서버를 입력해주세요.");
             System.exit(1);
         }
+        int port_in = Integer.parseInt(args[0]);
 
         ServerSocketChannel serverSocketChannel = CreateServer(port_in);
 
@@ -37,8 +34,10 @@ public class main {
             socketChannel.configureBlocking(false);
             socketChannel.bind(sockAddr);
             System.out.println("티맥스 대화방 초기화 중.." + socketChannel.getLocalAddress());
+            return socketChannel;
         } catch (IOException e) {
             e.printStackTrace();
+            return null;
         }
     }
 

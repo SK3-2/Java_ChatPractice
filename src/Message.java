@@ -1,16 +1,13 @@
 import java.io.IOException;
-import java.nio.channels.SocketChannel;
 
 public class Message {
-        private:
-        private enum MsgType {
-                GREET, BYE, WHISP, BROAD, EMPTY, SET
+        public enum MsgType {
+                GREET, BYE, WHISP, BROAD, SET
         }
 
         private ClientSocketChannel channel;
         private String msgBuffer;
         private String fromID;
-        private int fromColor;
         private MsgType mtype;
 
 
@@ -77,6 +74,10 @@ public class Message {
                 return fromID;
         }
 
+        ClientSocketChannel getFromSock() {
+            return channel;
+        }
+
         String getCommand() {
                 return tokenMsg(msgBuffer, 1);
         }
@@ -107,17 +108,16 @@ public class Message {
 
         //Revise the Msg to ID contained Format
         String get_MsgFrame(ClientSession csptr) {
-                fromID = csptr -> get_myID();
-                fromColor = csptr -> get_Color();
+                fromID = csptr.getMyID();
 
                 if (mtype == MsgType.GREET) {
                         msgBuffer = "\33[39m[" + fromID + "] enters to the Chat.";
                 } else if (mtype == MsgType.BYE) {
                         msgBuffer = "\33[39m[" + fromID + "] exits from the Chat.";
                 } else if (mtype == MsgType.WHISP) {
-                        msgBuffer = csptr -> get_FontFrame() + "[DM_" + fromID + "] " + msgBuffer.substring(4);
+                        msgBuffer = csptr.getColorFrame() + "[DM_" + fromID + "] " + msgBuffer.substring(4);
                 } else if (mtype == MsgType.BROAD) {
-                        msgBuffer = csptr -> get_FontFrame() + "[" + fromID + "] " + msgBuffer;
+                        msgBuffer = csptr.getColorFrame() + "[" + fromID + "] " + msgBuffer;
                 } else {
                         msgBuffer = "";
                 }
@@ -125,12 +125,8 @@ public class Message {
         }
 
 
-        void clear() {
-                try {
-                        channel.close();
-                } catch (IOException e) {
-                        e.printStackTrace();
-                }
+        void clear() throws IOException {
+                channel.close();
                 fromID = "";
                 msgBuffer = "";
         }

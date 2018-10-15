@@ -7,7 +7,6 @@ import java.nio.channels.SocketChannel;
 import java.util.Iterator;
 import java.util.Set;
 
-@Log
 public class EventManager {
     private Message mptr;
     private ClientManager cmptr;
@@ -19,7 +18,7 @@ public class EventManager {
             select = Selector.open();
             serverSocketChannel.register(select, SelectionKey.OP_ACCEPT);
         } catch (IOException e) {
-            log.info("fail to register selector");
+            //log.info("fail to register selector");
         }
     }
 
@@ -45,11 +44,11 @@ public class EventManager {
 
         } catch (Exception e) {
             // TODO: handle exception
-            log.info("fail to accept socket");
+            //log.info("fail to accept socket");
         }
     }
 
-    private String recvMsg(SelectionKey key) {
+    private String recvMsg(SelectionKey key) throws IOException {
         ClientSocketChannel chnn = (ClientSocketChannel) key.channel();
         String msg = chnn.receive();
         System.out.println("read Data:" + msg);

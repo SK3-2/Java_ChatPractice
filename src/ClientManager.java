@@ -6,11 +6,18 @@ import java.util.Map;
 import java.util.Set;
 
 public class ClientManager {
-    private HashMap socketIDHash = new HashMap();
-    private HashMap idClientHash = new HashMap();
+    private HashMap socketToIDHash = new HashMap();
+    private HashMap idToClientHash = new HashMap();
+    private EventManager emptr;
 
+    ClientManager(EventManager ptr) {
+        emptr = ptr;
+        ptr.register_ClientManager(this);
+    }
 
-    public void registerClient(String id, ClientSocketChannel sockChannel) throws IOException {
+    public void registerClient(Message msg) throws IOException {
+        String id = msg.getAskedID();
+        ClientSocketChannel sockChannel = msg.getFromSock();
         if(!isExist(id)){
             String msgAns = "no";
             sockChannel.send(msgAns);
@@ -20,63 +27,65 @@ public class ClientManager {
             String msgAns = "yes";
             sockChannel.send(msgAns);
             ClientSession clientSession = new ClientSession(id, sockChannel);
-            socketIDHash.put(sockChannel, id);
-            idClientHash.put(id, clientSession);
-
-            //register CS to the EventManager
-            broadcastMsg();
+            socketToIDHash.put((ClientSocketChannel)sockChannel, (String)id);
+            idToClientHash.put(id, clientSession);
+            broadcastMsg(msg);
             }
         }
 
     private boolean isExist(String id) {
-        if(idClientHash.containsKey(id))
+        if(idToClientHash.containsKey(id))
             return true;
         return false;
     }
 
-    public void handler(Message msg){
+    public void handler(Message msg) throws IOException {
         if(msg.isWhisper()){
             whisperMsg(msg);
-        } else if (msg.isSetting()){
+        } else if (msg.isSetting()) {
             settingMsg(msg);
+        } else if (msg.isEmpty()) {
+            closeSession(msg);
+        } else if (msg.isSetID()){
+            registerClient(msg);
         } else {
             broadcastMsg(msg);
         }
     }
 
-    private void broadcastMsg(Message msg) {
+    private void broadcastMsg(Message msg) throws IOException {
         SocketChannel fromSock = msg.getFromSock();
-        String fromID = (String) socketIDHash.get(fromSock);
-        Set socketSet = socketIDHash.entrySet();
-        Iterator it = socketSet.iterator();
+        String fromID = (String) socketToIDHash.get(fromSock);
+        ClientSession fromClient = (ClientSession)idToClientHash.get(fromID);
+
+        Set idSet = idToClientHash.entrySet();
+        Iterator it = idSet.iterator();
 
         while(it.hasNext()){
-            Map.Entry socketEntry = (Map.Entry)it.next();
-            if(socketEntry.getKey()== fromSock){
+            Map.Entry idEntry = (Map.Entry)it.next();
+            if(idEntry.getKey()==fromID){
                 continue;
             }
-            ClientSession client = (ClientSession) idClientHash.get((String)socketEntry.getValue());
-            client.send(msg.frame(fromID));
+            ClientSession toClient = (ClientSession) idEntry.getValue();
+            toClient.send(msg.get_MsgFrame(fromClient));
         }
     }
 
     private void whisperMsg(Message msg){
         try {
             SocketChannel fromSock = msg.getFromSock();
-            String fromID = (String) socketIDHash.get(fromSock);
-            String destID = msg.getDestID();
+            String fromID = (String) socketToIDHash.get(fromSock);
+            ClientSession fromClient = (ClientSession)idToClientHash.get(fromID);
+            String toID = msg.getToID();
 
-            if(!idClientHash.containsKey(destID)){
+            if(!idToClientHash.containsKey(toID)){
                 //Send back to the sender
-                ClientSession client_sent = (ClientSession)idClientHash.get(fromID);
-                client_sent.send("Fail to find the user with that name");
-                return;
+                fromClient.send("Fail to find the user with that name");
             } else{
                 //Find pointed client
-                ClientSession client = (ClientSession)idClientHash.get(destID);
-                client.send(msg.frame(fromID));
+                ClientSession toClient = (ClientSession)idToClientHash.get(toID);
+                toClient.send(msg.get_MsgFrame(fromClient));
             }
-
         } catch (IOException e){
             e.printStackTrace();
             System.out.println("message type exception");
@@ -86,16 +95,16 @@ public class ClientManager {
 
     private void settingMsg(Message msg){
         SocketChannel fromSock = msg.getFromSock();
-        String fromID = (String) socketIDHash.get(fromSock);
-        ClientSession client_self = (ClientSession)idClientHash.get(fromID);
-        client_self.set(msg);
+        String fromID = (String) socketToIDHash.get(fromSock);
+        ClientSession fromClient = (ClientSession)idToClientHash.get(fromID);
+        fromClient.set(msg);
     }
 
     public void closeSession(Message msg){
         SocketChannel fromSock = msg.getFromSock();
-        String fromID = (String) socketIDHash.get(fromSock);
-        idClientHash.remove(fromID);
-        socketIDHash.remove(fromSock);
+        String fromID = (String) socketToIDHash.get(fromSock);
+        idToClientHash.remove(fromID);
+        socketToIDHash.remove(fromSock);
 
         // call close() of EventManager
     }
