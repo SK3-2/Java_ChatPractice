@@ -78,13 +78,13 @@ public class EventManager {
 
             mptr.set_Msg(--);
 
-            if(mptr->isSetting()){
+            if(mptr.isSetting()){
                 cmptr.settingMsg(mptr);
             }
-            else if(mptr->isEmpty()){
+            else if(mptr.isEmpty()){
                 cmptr.close_Session(mptr);
             }
-            else if(mptr->isWhisper()){
+            else if(mptr.isWhisper()){
                 cmptr.whispMsg(mptr);
             }
             else{
