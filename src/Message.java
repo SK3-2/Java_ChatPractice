@@ -1,16 +1,17 @@
+import java.io.IOException;
 import java.nio.channels.SocketChannel;
 
 public class Message {
-
-        public enum MsgType {
+        private:
+        private enum MsgType {
                 GREET, BYE, WHISP, BROAD, EMPTY, SET
         }
 
-        SocketChannel channel;
-        String msgBuffer;
-        String fromID;
-        int fromColor;
-        MsgType mtype;
+        private ClientSocketChannel channel;
+        private String msgBuffer;
+        private String fromID;
+        private int fromColor;
+        private MsgType mtype;
 
 
         //Put recv Msg&Info  -- used in Receiving Object
@@ -18,7 +19,6 @@ public class Message {
                 System.out.println("setMsg: " + buf);
                 msgBuffer = buf;
                 mtype = parseMsg();
-                return;
         }
 
         MsgType parseMsg() {
@@ -88,7 +88,7 @@ public class Message {
         //Tokenize Function
         String tokenMsg(String buf, int order) {
                 int cur = 0; //Search Starts from Index 0
-                int head; //to erase a command character.
+                int head = 0; //to erase a command character.
                 if (buf.isEmpty()) {
                         return "";
                 }
@@ -106,7 +106,7 @@ public class Message {
         }
 
         //Revise the Msg to ID contained Format
-        String get_MsgFrame(ClientSession* csptr) {
+        String get_MsgFrame(ClientSession csptr) {
                 fromID = csptr -> get_myID();
                 fromColor = csptr -> get_Color();
 
@@ -115,7 +115,7 @@ public class Message {
                 } else if (mtype == MsgType.BYE) {
                         msgBuffer = "\33[39m[" + fromID + "] exits from the Chat.";
                 } else if (mtype == MsgType.WHISP) {
-                        msgBuffer = csptr -> get_FontFrame() + "[DM_" + fromID + "] " + msgBuffer;
+                        msgBuffer = csptr -> get_FontFrame() + "[DM_" + fromID + "] " + msgBuffer.substring(4);
                 } else if (mtype == MsgType.BROAD) {
                         msgBuffer = csptr -> get_FontFrame() + "[" + fromID + "] " + msgBuffer;
                 } else {
@@ -124,8 +124,13 @@ public class Message {
                 return msgBuffer;
         }
 
+
         void clear() {
-                fromSd = -1;
+                try {
+                        channel.close();
+                } catch (IOException e) {
+                        e.printStackTrace();
+                }
                 fromID = "";
                 msgBuffer = "";
         }

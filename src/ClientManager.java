@@ -91,11 +91,12 @@ public class ClientManager {
         client_self.set(msg);
     }
 
-    public void closeSession(MsgCarrier msg){
+    public void closeSession(Message msg){
         SocketChannel fromSock = msg.getFromSock();
         String fromID = (String) socketIDHash.get(fromSock);
         idClientHash.remove(fromID);
         socketIDHash.remove(fromSock);
+
         // call close() of EventManager
     }
 

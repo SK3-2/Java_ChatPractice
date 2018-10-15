@@ -1,21 +1,17 @@
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.Set;
 
 @Log
 public class EventManager {
-    Message mptr;
-    ClientManager cmptr;
+    private Message mptr;
+    private ClientManager cmptr;
     private Selector select = null;
-    String message;
 
     public EventManager(ServerSocketChannel serverSocketChannel, Message ptr) {
         try {
@@ -35,7 +31,7 @@ public class EventManager {
         return 0;
     }
 
-    public void accept(SelectionKey key) {
+    private void accept(SelectionKey key) {
         ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
         SocketChannel channel;
 
@@ -53,32 +49,23 @@ public class EventManager {
         }
     }
 
-    public String recvMsg(SelectionKey key) {
-        SocketChannel channel = (SocketChannel) key.channel();
-        Charset charset = Charset.forName("UTF-8");
-        ByteBuffer buffer = null;
-        buffer = ByteBuffer.allocate(100);
-        int bytecount = channel.read(buffer);
-
+    private String recvMsg(SelectionKey key) {
         ClientSocketChannel chnn = (ClientSocketChannel) key.channel();
         String msg = chnn.receive();
-
-
-        buffer.flip();
-        return charset.decode(buffer).toString();
-    }
-
-    public void read(SelectionKey key) {
-
-        message = recvMsg(key);
-
-        System.out.println("read Data:" + message);
-
-        mptr.set_Msg(message);
+        System.out.println("read Data:" + msg);
+        mptr.set_Msg(msg);
         cmptr.handler(mptr);
-
-        return; //읽고 종료
+        return msg;
     }
+
+    public void closeKey(ClientSocketChannel channel) {
+        try {
+            channel.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void run() { //do_Poll 동치
         // TODO Auto-generated method stub
 
@@ -89,7 +76,6 @@ public class EventManager {
                 if (keyCount == 0) {
                     continue;
                 }
-
                 Set<SelectionKey> selectedKeys = select.selectedKeys();
                 // select.selectNow(); // 비동기 처리.
                 Iterator<SelectionKey> iterator = selectedKeys.iterator();
@@ -101,12 +87,11 @@ public class EventManager {
                     if (!key.isValid()) { // 사용가능한 상태가 아니면 그냥 넘어감.
                         continue;
                     }
-
                     if (key.isAcceptable()) { // select가 accept 모드이면
                         accept(key);
                     } else if (key.isReadable()) { // select가 read 모드이면
                         System.out.println("read stage!");
-                        read(key);
+                        recvMsg(key);
                     }
                     iterator.remove();   // 중요함 . 처리한 키는 제거
                 }
