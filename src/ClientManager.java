@@ -1,5 +1,7 @@
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -17,17 +19,25 @@ public class ClientManager {
 
     public void registerClient(Message msg) throws IOException {
         String id = msg.getAskedID();
-        ClientSocketChannel sockChannel = msg.getFromSock();
+        SocketChannel sockChannel = msg.getFromSock();
         if(!isExist(id)){
             String msgAns = "no";
-            sockChannel.send(msgAns);
+            Charset charset = Charset.forName("UTF-8");
+            ByteBuffer buffer = null;
+            try {
+                buffer = charset.encode(msgAns);
+                sockChannel.write(buffer);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             sockChannel.close(); //close and detach from the selector
             System.out.println("Submitted ID is denied. - already existed");
         } else {
             String msgAns = "yes";
-            sockChannel.send(msgAns);
+
             ClientSession clientSession = new ClientSession(id, sockChannel);
-            socketToIDHash.put((ClientSocketChannel)sockChannel, (String)id);
+            clientSession.send(msgAns);
+            socketToIDHash.put((SocketChannel)sockChannel, (String)id);
             idToClientHash.put(id, clientSession);
             broadcastMsg(msg);
             }

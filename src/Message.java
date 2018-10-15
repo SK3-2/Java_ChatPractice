@@ -1,11 +1,12 @@
 import java.io.IOException;
+import java.nio.channels.SocketChannel;
 
 public class Message {
         public enum MsgType {
                 GREET, BYE, WHISP, BROAD, SET
         }
 
-        private ClientSocketChannel channel;
+        private SocketChannel channel;
         private String msgBuffer;
         private String fromID;
         private MsgType mtype;
@@ -74,7 +75,7 @@ public class Message {
                 return fromID;
         }
 
-        ClientSocketChannel getFromSock() {
+        SocketChannel getFromSock() {
             return channel;
         }
 

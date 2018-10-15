@@ -1,16 +1,19 @@
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
 
 public class ClientSession {
 
     private String myID;
     private int color = 0;
-    private ClientSocketChannel socketChannel;
+    private SocketChannel socketChannel;
 
     private String cText;
 
-    ClientSession(String id, ClientSocketChannel sockChannel){
+    ClientSession(String id, SocketChannel sockChannel){
         myID = id;
-        socketChannel = sockChannel;
+        this.socketChannel = sockChannel;
     }
 
     public String getMyID(){
@@ -43,12 +46,22 @@ public class ClientSession {
 
         string += getColorFrame();
 
-        socketChannel.send(string);
+        send(string, socketChannel);
         //System.out.println("Message is partially sent.");
 
         return;
     }
 
+    public void send(String message, SocketChannel channel) {
+        Charset charset = Charset.forName("UTF-8");
+        ByteBuffer buffer = null;
+        try {
+            buffer = charset.encode(message);
+            channel.write(buffer);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
     public void set(Message msg){
         String command = msg.getCommand();
         if(command == "color"){

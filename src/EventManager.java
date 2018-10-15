@@ -1,9 +1,11 @@
 import java.io.IOException;
 import java.net.SocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.Charset;
 import java.util.Iterator;
 import java.util.Set;
 
@@ -48,16 +50,33 @@ public class EventManager {
         }
     }
 
+
     private String recvMsg(SelectionKey key) throws IOException {
-        ClientSocketChannel chnn = (ClientSocketChannel) key.channel();
-        String msg = chnn.receive();
+        SocketChannel chnn = (SocketChannel) key.channel();
+        String msg = receive(chnn);
         System.out.println("read Data:" + msg);
         mptr.set_Msg(msg);
         cmptr.handler(mptr);
         return msg;
     }
 
-    public void closeKey(ClientSocketChannel channel) {
+    Charset charset = Charset.forName("UTF-8");
+    ByteBuffer buffer = null;
+
+    public String receive(SocketChannel channel){
+        try {
+            buffer = ByteBuffer.allocate(1024);
+            int bytecount = channel.read(buffer);
+            buffer.flip();
+            return charset.decode(buffer).toString();
+        }catch (IOException e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+    public void closeKey(SocketChannel channel) {
         try {
             channel.close();
         } catch (IOException e) {
