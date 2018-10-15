@@ -39,7 +39,7 @@ public class Message {
         }
 
         //Ask by isCase
-        boolean isSetID() const
+        boolean isSetID() final
         {
                 if (mtype == MsgType.GREET)
                         return true;
