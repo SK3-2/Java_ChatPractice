@@ -55,16 +55,16 @@ public class EventManager {
         SocketChannel chnn = (SocketChannel) key.channel();
         String msg = receive(chnn);
         System.out.println("read Data:" + msg);
-        mptr.set_Msg(msg);
+        mptr.set_Msg(msg, chnn);
         cmptr.handler(mptr);
         return msg;
     }
 
-    Charset charset = Charset.forName("UTF-8");
-    ByteBuffer buffer = null;
 
     public String receive(SocketChannel channel){
         try {
+            Charset charset = Charset.forName("UTF-8");
+            ByteBuffer buffer = null;
             buffer = ByteBuffer.allocate(1024);
             int bytecount = channel.read(buffer);
             buffer.flip();

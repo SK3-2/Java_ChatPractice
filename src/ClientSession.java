@@ -55,6 +55,7 @@ public class ClientSession {
     public void send(String message, SocketChannel channel) {
         Charset charset = Charset.forName("UTF-8");
         ByteBuffer buffer = null;
+
         try {
             buffer = charset.encode(message);
             channel.write(buffer);

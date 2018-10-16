@@ -13,27 +13,30 @@ public class Message {
 
 
         //Put recv Msg&Info  -- used in Receiving Object
-        void set_Msg(String buf) {
+        void set_Msg(String buf, SocketChannel channel) {
                 System.out.println("setMsg: " + buf);
                 msgBuffer = buf;
                 mtype = parseMsg();
+                this.channel = channel;
         }
 
         MsgType parseMsg() {
-                MsgType type;
-                if (msgBuffer.substring(0,1).compareTo("/") == 0) {
-                        if (msgBuffer.substring(1,2).compareTo("id") == 0)
-                                type = MsgType.GREET;
-                        else
-                                type = MsgType.SET;  //SET인 경우는, Command를 추가로 비교
-                } else if (msgBuffer.substring(0,1).compareTo("@") == 0)
-                        type = MsgType.WHISP;
-                else if (msgBuffer.isEmpty()) {
+                if (msgBuffer.isEmpty()) {
                         System.out.println("Msg is empty");
-                        type = MsgType.BYE;
-                } else
-                        type = MsgType.BROAD;
-                return type;
+                        mtype = MsgType.BYE;
+                }
+                else if (msgBuffer.substring(0,1).compareTo("/") == 0) {
+                        if (msgBuffer.substring(1,3).compareTo("id") == 0)
+                                mtype = MsgType.GREET;
+                        else
+                                mtype = MsgType.SET;  //SET인 경우는, Command를 추가로 비교
+                }
+                else if (msgBuffer.substring(0,1).compareTo("@") == 0) {
+                        mtype = MsgType.WHISP;
+                }
+                else
+                        mtype = MsgType.BROAD;
+                return mtype;
         }
 
         //Ask by isCase
@@ -97,11 +100,14 @@ public class Message {
 
                 for (int i = 0; i < order; i++) {
                         head = cur;
-                        cur = buf.indexOf(" ", cur);
+                        cur = buf.indexOf(" ", cur+1);
+                        System.out.println(cur);
                         if (cur == -1) {
                                 // 방어코드가 필요함, 원하는 token 개수 만큼 안 들어왔을 때.
-                                cur = buf.indexOf("\n");
-                                break;
+                                System.out.printf("cur: %d\n ",cur);
+                                System.out.printf("buf length: %d\n",buf.length());
+                                System.out.printf("head: %d\n",head);
+                                return buf.substring(head+1,buf.length()-1);
                         }
                 }
                 return buf.substring(head + 1, cur - head - 1);
