@@ -34,10 +34,10 @@ public class ClientSession {
     }
 
 
-    public void send(String buffer) throws IOException{
+    public void send(String buf) throws IOException{
         int n;
-        int size = buffer.length();
-        String string =  buffer;
+        int size = buf.length();
+        String string =  buf;
 
         if(string.isEmpty()){
             System.out.println("Empty message is submitted.");
@@ -46,17 +46,19 @@ public class ClientSession {
 
         string += getColorFrame();
 
-        send(string, socketChannel);
-        //System.out.println("Message is partially sent.");
+        send(string, this.socketChannel);
 
         return;
     }
 
     public void send(String message, SocketChannel channel) {
         Charset charset = Charset.forName("UTF-8");
-        ByteBuffer buffer = null;
+        System.out.println("message: "+message);
+
         try {
+            ByteBuffer buffer = null;
             buffer = charset.encode(message);
+//            buffer.flip();
             channel.write(buffer);
         } catch (IOException e) {
             e.printStackTrace();

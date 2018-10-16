@@ -42,7 +42,7 @@ public class EventManager {
             SocketAddress remoteAddr = channel.getRemoteAddress();
             System.out.println("[Accept Socket Event Occur!]: "+ remoteAddr.toString());
 
-            channel.register(key.selector(), SelectionKey.OP_READ); // 읽을 수 있는 모드로 전환
+            channel.register(key.selector(), SelectionKey.OP_READ | SelectionKey.OP_WRITE); // 읽을 수 있는 모드로 전환
 
         } catch (Exception e) {
             // TODO: handle exception
@@ -55,16 +55,22 @@ public class EventManager {
         SocketChannel chnn = (SocketChannel) key.channel();
         String msg = receive(chnn);
         System.out.println("read Data:" + msg);
-        mptr.set_Msg(msg);
+//        Charset charset = Charset.forName("UTF-8");
+//        ByteBuffer buffer = null;
+//        buffer = charset.encode("yes");
+//        buffer.flip();
+//        chnn.write(buffer);
+
+        mptr.set_Msg(msg, chnn);
         cmptr.handler(mptr);
         return msg;
     }
 
-    Charset charset = Charset.forName("UTF-8");
-    ByteBuffer buffer = null;
 
     public String receive(SocketChannel channel){
         try {
+            Charset charset = Charset.forName("UTF-8");
+            ByteBuffer buffer = null;
             buffer = ByteBuffer.allocate(1024);
             int bytecount = channel.read(buffer);
             buffer.flip();

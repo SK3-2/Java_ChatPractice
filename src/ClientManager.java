@@ -20,7 +20,7 @@ public class ClientManager {
     public void registerClient(Message msg) throws IOException {
         String id = msg.getAskedID();
         SocketChannel sockChannel = msg.getFromSock();
-        if(!isExist(id)){
+        if(isExist(id)){
             String msgAns = "no";
             Charset charset = Charset.forName("UTF-8");
             ByteBuffer buffer = null;
@@ -34,14 +34,14 @@ public class ClientManager {
             System.out.println("Submitted ID is denied. - already existed");
         } else {
             String msgAns = "yes";
-
             ClientSession clientSession = new ClientSession(id, sockChannel);
+            System.out.println("register stage! ID: "+id);
             clientSession.send(msgAns);
             socketToIDHash.put((SocketChannel)sockChannel, (String)id);
             idToClientHash.put(id, clientSession);
             broadcastMsg(msg);
-            }
         }
+    }
 
     private boolean isExist(String id) {
         if(idToClientHash.containsKey(id))
@@ -50,14 +50,14 @@ public class ClientManager {
     }
 
     public void handler(Message msg) throws IOException {
-        if(msg.isWhisper()){
+        if (msg.isSetID()) {
+            registerClient(msg);
+        } else if(msg.isWhisper()){
             whisperMsg(msg);
         } else if (msg.isSetting()) {
             settingMsg(msg);
         } else if (msg.isEmpty()) {
             closeSession(msg);
-        } else if (msg.isSetID()){
-            registerClient(msg);
         } else {
             broadcastMsg(msg);
         }
@@ -110,12 +110,22 @@ public class ClientManager {
         fromClient.set(msg);
     }
 
-    public void closeSession(Message msg){
+    public void closeSession(Message msg) {
         SocketChannel fromSock = msg.getFromSock();
         String fromID = (String) socketToIDHash.get(fromSock);
+        try {
+            broadcastMsg(msg);
+//            fromSock.close();
+        } catch (IOException e) {
+            System.out.println("error");
+        }
         idToClientHash.remove(fromID);
         socketToIDHash.remove(fromSock);
-
+        try {
+            fromSock.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         // call close() of EventManager
     }
 
