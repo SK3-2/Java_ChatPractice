@@ -35,7 +35,8 @@ public class ClientManager {
         } else {
             String msgAns = "yes";
             ClientSession clientSession = new ClientSession(id, sockChannel);
-            clientSession.send(msgAns,sockChannel);
+            System.out.println("register stage! ID: "+id);
+            clientSession.send(msgAns);
             socketToIDHash.put((SocketChannel)sockChannel, (String)id);
             idToClientHash.put(id, clientSession);
             broadcastMsg(msg);

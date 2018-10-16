@@ -107,7 +107,7 @@ public class Message {
                                 System.out.printf("cur: %d\n ",cur);
                                 System.out.printf("buf length: %d\n",buf.length());
                                 System.out.printf("head: %d\n",head);
-                                return buf.substring(head+1,buf.length()-1);
+                                return buf.substring(head+1);
                         }
                 }
                 return buf.substring(head + 1, cur - head - 1);
