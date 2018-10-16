@@ -28,7 +28,7 @@ public class Client {
 
         while (true) {
             try {
-                client.connect();
+                client.connect(args[1]);
                 ByteBuffer byteBuffer = null;
                 Charset charset = Charset.forName("UTF-8");
                 byteBuffer = charset.encode("/id " + ID);
