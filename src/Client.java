@@ -77,12 +77,18 @@ public class Client {
 
                 while (true) {
                     try {
-                        ByteBuffer byteBuffer = ByteBuffer.allocate(100);
+                        ByteBuffer byteBuffer = ByteBuffer.allocate(1024);
                         int byteCount = sock.read(byteBuffer);
+                        byteBuffer.flip();
                         String message = charset.decode(byteBuffer).toString();
+                        if (message.isEmpty()) {
+                            System.out.println("서버가 종료 되었습니다.");
+                            exit(0);
+                        }
                         System.out.println("[데이터 받기 성공]: " + message);
                     } catch (IOException e) {
                         e.printStackTrace();
+                        return;
                     }
                 }
             }
