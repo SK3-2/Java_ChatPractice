@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.channels.ServerSocketChannel;
 
@@ -29,7 +30,8 @@ public class main {
 
     public static ServerSocketChannel CreateServer(int port) {
         try {
-            sockAddr = new InetSocketAddress("localhost", port);
+            InetAddress addr = InetAddress.getLocalHost();
+            sockAddr = new InetSocketAddress(addr,port);
             ServerSocketChannel socketChannel = ServerSocketChannel.open();
             socketChannel.configureBlocking(false);
             socketChannel.bind(sockAddr);

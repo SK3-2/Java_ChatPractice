@@ -87,6 +87,7 @@ public class Message {
         }
 
         String getValue() {
+                //System.out.println("GET VALUE CALL");
                 return tokenMsg(msgBuffer, 2);
         }
 
@@ -101,7 +102,6 @@ public class Message {
                 for (int i = 0; i < order; i++) {
                         head = cur;
                         cur = buf.indexOf(" ", cur+1);
-                        System.out.println(cur);
                         if (cur == -1) {
                                 // 방어코드가 필요함, 원하는 token 개수 만큼 안 들어왔을 때.
                                 System.out.printf("cur: %d\n ",cur);
@@ -110,7 +110,7 @@ public class Message {
                                 return buf.substring(head+1);
                         }
                 }
-                return buf.substring(head + 1, cur - head - 1);
+                return buf.substring(head + 1, cur - head);
         }
 
         //Revise the Msg to ID contained Format
@@ -122,7 +122,8 @@ public class Message {
                 } else if (mtype == MsgType.BYE) {
                         msgBuffer = "\33[39m[" + fromID + "] exits from the Chat.";
                 } else if (mtype == MsgType.WHISP) {
-                        msgBuffer = csptr.getColorFrame() + "[DM_" + fromID + "] " + msgBuffer.substring(4);
+                        int cur = msgBuffer.indexOf(" ");
+                        msgBuffer = csptr.getColorFrame() + "[DM_" + fromID + "] " + msgBuffer.substring(cur+1);
                 } else if (mtype == MsgType.BROAD) {
                         msgBuffer = csptr.getColorFrame() + "[" + fromID + "] " + msgBuffer;
                 } else {

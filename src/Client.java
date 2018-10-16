@@ -85,7 +85,7 @@ public class Client {
                             System.out.println("서버가 종료 되었습니다.");
                             exit(0);
                         }
-                        System.out.println("[데이터 받기 성공]: " + message);
+                        System.out.println(message);
                     } catch (IOException e) {
                         e.printStackTrace();
                         return;
@@ -101,7 +101,7 @@ public class Client {
         Scanner scan = new Scanner(System.in);
         while (true) {
             String message = scan.nextLine();
-            System.out.println(message);
+            //System.out.println(message);
             try {
                 ByteBuffer byteBuffer = null;
                 Charset charset = Charset.forName("UTF-8");

@@ -39,6 +39,8 @@ public class ClientManager {
             clientSession.send(msgAns);
             socketToIDHash.put((SocketChannel)sockChannel, (String)id);
             idToClientHash.put(id, clientSession);
+            //boolean check = idToClientHash.containsKey(id);
+            //System.out.println(check);
             broadcastMsg(msg);
         }
     }
@@ -69,6 +71,7 @@ public class ClientManager {
         ClientSession fromClient = (ClientSession)idToClientHash.get(fromID);
 
         Set idSet = idToClientHash.entrySet();
+        idSet.remove(fromID);
         Iterator it = idSet.iterator();
 
         while(it.hasNext()){
@@ -87,6 +90,7 @@ public class ClientManager {
             String fromID = (String) socketToIDHash.get(fromSock);
             ClientSession fromClient = (ClientSession)idToClientHash.get(fromID);
             String toID = msg.getToID();
+            System.out.println(toID);
 
             if(!idToClientHash.containsKey(toID)){
                 //Send back to the sender
@@ -103,7 +107,7 @@ public class ClientManager {
         }
     }
 
-    private void settingMsg(Message msg){
+    private void settingMsg(Message msg) throws IOException {
         SocketChannel fromSock = msg.getFromSock();
         String fromID = (String) socketToIDHash.get(fromSock);
         ClientSession fromClient = (ClientSession)idToClientHash.get(fromID);

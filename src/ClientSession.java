@@ -29,7 +29,7 @@ public class ClientSession {
     }
 
     public String getColorFrame(){
-        String colorFrame = "\u001B["+ ((Integer)color).toString() +"m";
+        String colorFrame = "\33["+ ((Integer)color).toString() +"m";
         return colorFrame;
     }
 
@@ -43,11 +43,8 @@ public class ClientSession {
             System.out.println("Empty message is submitted.");
             return;
         }
-
         string += getColorFrame();
-
         send(string, this.socketChannel);
-
         return;
     }
 
@@ -58,17 +55,17 @@ public class ClientSession {
         try {
             ByteBuffer buffer = null;
             buffer = charset.encode(message);
-//            buffer.flip();
             channel.write(buffer);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-    public void set(Message msg){
+    public void set(Message msg) throws IOException {
         String command = msg.getCommand();
-        if(command == "color"){
-            Integer color = Integer.valueOf(msg.getValue());
+        if(command.equals("color")){
+            int color = Integer.valueOf(msg.getValue());
             setColor(color);
+            send("User color is successfully changed.");
         }
     }
 }
