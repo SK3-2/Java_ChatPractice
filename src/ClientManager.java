@@ -73,14 +73,14 @@ public class ClientManager {
         Set idSet = idToClientHash.entrySet();
         idSet.remove(fromID);
         Iterator it = idSet.iterator();
-
+        String msgFrame = msg.get_MsgFrame(fromClient)
         while(it.hasNext()){
             Map.Entry idEntry = (Map.Entry)it.next();
             if(idEntry.getKey()==fromID){
                 continue;
             }
             ClientSession toClient = (ClientSession) idEntry.getValue();
-            toClient.send(msg.get_MsgFrame(fromClient));
+            toClient.send(msgFrame);
         }
     }
 
