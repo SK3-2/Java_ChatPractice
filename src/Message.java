@@ -116,20 +116,21 @@ public class Message {
         //Revise the Msg to ID contained Format
         String get_MsgFrame(ClientSession csptr) {
                 fromID = csptr.getMyID();
-
+                String msgFrame;
                 if (mtype == MsgType.GREET) {
-                        msgBuffer = "\33[39m[" + fromID + "] enters to the Chat.";
+                        msgFrame = "\33[39m[" + fromID + "] enters to the Chat.";
+
                 } else if (mtype == MsgType.BYE) {
-                        msgBuffer = "\33[39m[" + fromID + "] exits from the Chat.";
+                        msgFrame = "\33[39m[" + fromID + "] exits from the Chat.";
                 } else if (mtype == MsgType.WHISP) {
                         int cur = msgBuffer.indexOf(" ");
-                        msgBuffer = csptr.getColorFrame() + "[DM_" + fromID + "] " + msgBuffer.substring(cur+1);
+                        msgFrame = csptr.getColorFrame() + "[DM_" + fromID + "] " + msgBuffer.substring(cur+1);
                 } else if (mtype == MsgType.BROAD) {
-                        msgBuffer = csptr.getColorFrame() + "[" + fromID + "] " + msgBuffer;
+                        msgFrame = csptr.getColorFrame() + "[" + fromID + "] " + msgBuffer;
                 } else {
-                        msgBuffer = "";
+                        msgFrame = "";
                 }
-                return msgBuffer;
+                return msgFrame;
         }
 
 
