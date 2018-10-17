@@ -13,7 +13,7 @@ public class main {
             System.exit(1);
         }
         int port_in = Integer.parseInt(args[0]);
-
+				//git pull before
         ServerSocketChannel serverSocketChannel = CreateServer(port_in);
 
         Message Msg = new Message();
@@ -30,7 +30,7 @@ public class main {
 
     public static ServerSocketChannel CreateServer(int port) {
         try {
-            InetAddress addr = InetAddress.getLocalHost();
+            InetAddress addr = InetAddress.getByName("0.0.0.0");
             sockAddr = new InetSocketAddress(addr,port);
             ServerSocketChannel socketChannel = ServerSocketChannel.open();
             socketChannel.configureBlocking(false);
