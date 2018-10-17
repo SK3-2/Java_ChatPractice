@@ -82,7 +82,7 @@ public class Client {
                         byteBuffer.flip();
                         String message = charset.decode(byteBuffer).toString();
                         if (message.isEmpty()) {
-                            System.out.println("서버가 종료 되었습니다.");
+                            System.out.println("\33[39m서버가 종료 되었습니다.");
                             exit(0);
                         }
                         System.out.println(message);

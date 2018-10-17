@@ -104,9 +104,6 @@ public class Message {
                         cur = buf.indexOf(" ", cur+1);
                         if (cur == -1) {
                                 // 방어코드가 필요함, 원하는 token 개수 만큼 안 들어왔을 때.
-                                System.out.printf("cur: %d\n ",cur);
-                                System.out.printf("buf length: %d\n",buf.length());
-                                System.out.printf("head: %d\n",head);
                                 return buf.substring(head+1);
                         }
                 }
@@ -124,6 +121,7 @@ public class Message {
                         msgFrame = "\33[39m[" + fromID + "] exits from the Chat.";
                 } else if (mtype == MsgType.WHISP) {
                         int cur = msgBuffer.indexOf(" ");
+                        System.out.println("cur: "+cur);
                         msgFrame = csptr.getColorFrame() + "[DM_" + fromID + "] " + msgBuffer.substring(cur+1);
                 } else if (mtype == MsgType.BROAD) {
                         msgFrame = csptr.getColorFrame() + "[" + fromID + "] " + msgBuffer;
